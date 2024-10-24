@@ -5,13 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
         $fields = $request->validate([
-            'name' => 'required|max:255',
+            'firstname' => 'required|max:255',
+            'lastname' => 'required|max:255',
+            'age' => 'required|integer|min:1|max:120',
+            'address' => 'required|max:255',
+            'contact_no' => 'required|max:255',
+            'education_attainment' => 'required|max:255',
+            'role' => 'required|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|confirmed',
         ]);
@@ -49,7 +56,7 @@ class AuthController extends Controller
                 ];
             }
 
-            $token = $user->createToken($user->name);
+            $token = $user->createToken("auth_token");
 
             $user->makeHidden(['created_at', 'updated_at']);
 
@@ -64,6 +71,8 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+
 
     public function logout(Request $request)
     {
