@@ -23,7 +23,19 @@ class AuthController extends Controller
             'password' => 'required|confirmed',
         ]);
         try {
-            $user = User::create($fields);
+            $fields['role'] = $fields['role'] ?? 'guest';
+
+            $user = User::create([
+                'firstname' => $fields['firstname'],
+                'lastname' => $fields['lastname'],
+                'age' => $fields['age'],
+                'address' => $fields['address'],
+                'contact_no' => $fields['contact_no'],
+                'education_attainment' => $fields['education_attainment'],
+                'role' => $fields['role'],
+                'email' => $fields['email'],
+                'password' => Hash::make($fields['password']),
+            ]);
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
