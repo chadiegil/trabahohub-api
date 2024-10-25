@@ -15,8 +15,50 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
-        return response()->json($posts);
+        $posts = Post::paginate(10);
+        return response()->json([
+            'current_page' => $posts->currentPage(),
+            'last_page' => $posts->lastPage(),
+            'total' => $posts->total(),
+            'data' => $posts->items(),
+        ]);
+    }
+
+    public function search(Request $request)
+    {
+        $request->validate([
+            'job_title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'location' => 'sometimes|string|max:255',
+            'salary' => 'sometimes|string|max:255',
+            'job_type' => 'sometimes|string|max:255',
+            'company_name' => 'sometimes|string|max:255',
+        ]);
+
+        $query = Post::query();
+
+        $filterableFields = [
+            'job_title',
+            'description',
+            'location',
+            'salary',
+            'job_type',
+            'company_name',
+        ];
+
+        foreach ($filterableFields as $field) {
+            if ($request->has($field) && !empty($request->$field)) {
+                $query->where($field, 'like', '%' . $request->$field . '%');
+            }
+        }
+
+        $posts = $query->paginate(10);
+        return response()->json([
+            'current_page' => $posts->currentPage(),
+            'last_page' => $posts->lastPage(),
+            'total' => $posts->total(),
+            'data' => $posts->items(),
+        ]);
     }
 
     /**
