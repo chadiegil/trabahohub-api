@@ -42,7 +42,7 @@ class PostController extends Controller
             $post = Post::create(array_merge($request->all(), ['user_id' => $user->id]));
             return response()->json($post, 201);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Server error. Please try again later.'], 500);
+            return response()->json(['error' => 'Server error. Please try again later.', $e], 500);
         }
     }
 
