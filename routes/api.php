@@ -9,6 +9,7 @@ use App\Http\Controllers\AuthController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/search', [PostController::class, 'search']);
 Route::get('/posts/{post}', [PostController::class, 'show']);
 
 // Routes that require authentication
