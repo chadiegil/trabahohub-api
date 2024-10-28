@@ -24,6 +24,23 @@ class PostController extends Controller
         ]);
     }
 
+    public function getOwnPost($id)
+    {
+        $posts = Post::where('user_id', $id)->paginate(10);
+
+        if ($posts->isEmpty()) {
+            return response()->json(['message' => 'No posts found for this user.'], 404);
+        }
+
+        return response()->json([
+            'current_page' => $posts->currentPage(),
+            'last_page' => $posts->lastPage(),
+            'total' => $posts->total(),
+            'data' => $posts->items(),
+        ]);
+    }
+
+
     public function search(Request $request)
     {
         $request->validate([
@@ -52,7 +69,7 @@ class PostController extends Controller
             }
         }
 
-        $posts = $query->paginate(10);
+        $posts = $query->paginate(3);
         return response()->json([
             'current_page' => $posts->currentPage(),
             'last_page' => $posts->lastPage(),
@@ -74,17 +91,23 @@ class PostController extends Controller
             'job_type' => 'required|string|max:255',
             'company_name' => 'required|string|max:255',
         ]);
+
         $user = $request->user();
-        // Check if the user is authenticated
+
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+
+        if ($user->role === 'guest') {
+            $user->role = 'employer';
+            $user->save();
+        }
+
         try {
-            // Create a new post
             $post = Post::create(array_merge($request->all(), ['user_id' => $user->id]));
             return response()->json($post, 201);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Server error. Please try again later.', $e], 500);
+            return response()->json(['error' => 'Server error. Please try again later.', 'exception' => $e->getMessage()], 500);
         }
     }
 
